@@ -1,0 +1,158 @@
+<meta charset="utf-8">
+<title>" </title>
+
+<body>
+</body>
+
+<script>
+
+canvas = document.createElement("canvas")
+canvas.height = 400
+canvas.width = 400
+
+ctx = canvas.getContext("2d");
+ctx.fillStyle = "#ffffcc"
+ctx.fillRect(0,0,400,400);
+
+
+
+
+btn_pause = document.createElement("button");
+btn_pause.innerText = "pause"
+
+btn_pause.addEventListener("click",()=>{
+    if(x){
+        clearInterval(x)
+        x = null
+        btn_pause.innerText = "unpause"
+    }
+    else{
+        x = setInterval(tick,25);
+        btn_pause.innerText = "pause"
+    }
+})
+
+btn = document.createElement("button");
+btn.innerText = "spawn"
+btn.addEventListener("click",()=>{
+    /*
+    rects.forEach(r => {
+        if(r.move == Rect.movement.none)
+        r.move = Rect.movement.down
+        else if(r.move == Rect.movement.down)
+        r.move = Rect.movement.none
+    });
+    */
+    
+    rects.forEach(r=>r.spawn())
+})
+
+btn_auto = document.createElement("button");
+btn_auto.innerText = "auto on"
+btn_auto.addEventListener("click",()=>{
+    auto=!auto
+    if(auto){
+        btn_auto.innerText = "auto off"
+    } else{
+        btn_auto.innerText = "auto on"
+    }
+})
+
+
+document.body.appendChild(canvas);
+document.body.appendChild(document.createElement("div"));
+document.body.appendChild(btn);
+document.body.appendChild(btn_pause);
+document.body.appendChild(btn_auto);
+
+let auto = false;
+
+class Rect{
+    constructor(x,y, movement){
+        this.x = x;
+        this.y = y;
+        this.move = movement;
+        this.movedticks = 0;
+        this.spawned = 0;
+    }
+    
+    spawn(){
+        let dir = Rect.movement.none
+        if(this.spawned==0) dir = Rect.movement.down
+        else if(this.spawned==1) dir = Rect.movement.right
+        else if(this.spawned>=2) return
+        else return
+        let new_rect = new Rect(this.x, this.y, dir)
+        if(new_rect.move == Rect.movement.right) 
+            new_rect.spawned=1
+        rects.push(new_rect);
+        this.spawned++;
+    }
+    
+    updateDraw(){
+    
+        //update
+        if(this.move(this)){
+            this.movedticks++;
+            if(this.movedticks>=20){
+                this.move = Rect.movement.none;
+            }
+        }
+        
+        
+        //draw
+        
+        let x_offset = 10
+        
+        ctx.fillStyle = "black"
+        ctx.fillRect(this.x+x_offset,this.y, 20,20);
+        ctx.strokeStyle = "red"
+        ctx.beginPath();
+        ctx.rect(this.x+x_offset,this.y, 20,20);
+        ctx.stroke();
+    }
+}
+
+
+Rect.movement = {
+none:(rect)=>{},
+down:(rect)=>{rect.y++; return true}, 
+right:(rect)=>{rect.x++; return true}, 
+}
+
+
+rects = [];
+
+rects.draw = ()=>{
+    let spawned = false;
+    rects.forEach(r => {
+        r.updateDraw();
+    });
+    
+};
+
+rootrect = new Rect(0,0)
+rootrect.move = Rect.movement.none
+rootrect.movedticks = 20
+rects.push(rootrect);
+
+let clicked = false;
+let ticktime=0
+function tick(){
+    if(auto)ticktime++
+    if(ticktime%20==19){
+        rects.forEach(r=>r.spawn()) 
+    }
+    ctx.fillStyle = "#ffffcc";
+    ctx.fillRect(0,0,400,400);
+    ctx.fillStyle = "black";
+    rects.draw()
+    document.title = rects.length
+    if(rects.length>=1000&& !clicked){
+        btn_pause.click()
+        clicked=true;
+    }
+}
+let x = setInterval(tick,25);
+
+</script>
