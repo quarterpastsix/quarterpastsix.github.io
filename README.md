@@ -1,1 +1,0 @@
-# quarterpastsix.github.io
